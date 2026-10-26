@@ -1,0 +1,159 @@
+{
+  "overshoot": {
+    "warning_pct": 5.0,
+    "critical_pct": 15.0,
+    "description": "Signal overshoots the settled high level after a rising transition",
+    "possible_causes": [
+      "Impedance mismatch between source and transmission line",
+      "Underdamped LC response (parasitic inductance + load capacitance)",
+      "Long PCB trace acting as a transmission line at fast edge speeds",
+      "Probe compensation error introducing artificial overshoot"
+    ],
+    "suggestions": [
+      "Add a series termination resistor (typically 22–100 Ω) close to the driver output",
+      "Match source impedance to the line impedance (typically 50 Ω)",
+      "Check and adjust probe compensation with a 1 kHz calibration square wave",
+      "Reduce trace length or use controlled-impedance routing",
+      "Add a small series resistor (10–33 Ω) to damp high-frequency ringing"
+    ]
+  },
+  "undershoot": {
+    "warning_pct": 5.0,
+    "critical_pct": 10.0,
+    "description": "Signal undershoots the settled low level after a falling transition",
+    "possible_causes": [
+      "Same root causes as overshoot — impedance mismatch on the falling edge",
+      "Inductive kickback from a load (motor, relay, inductor)",
+      "Negative ringing from reflected signal on long traces"
+    ],
+    "suggestions": [
+      "Add a series termination resistor near the source",
+      "For inductive loads: add a flyback diode (freewheeling diode) across the load",
+      "Reduce switching speed if not timing-critical (slower slew rate = less ringing)"
+    ]
+  },
+  "ringing": {
+    "overshoot_threshold_pct": 5.0,
+    "oscillation_frequency_ratio_min": 5,
+    "description": "Damped sinusoidal oscillation superimposed on the signal after a transition",
+    "possible_causes": [
+      "Resonance between parasitic trace inductance and load/stray capacitance",
+      "Transmission line unterminated or improperly terminated",
+      "Via or connector discontinuity causing impedance mismatch",
+      "Probe ground lead too long (adds inductance)"
+    ],
+    "suggestions": [
+      "Use a series damping resistor (22–100 Ω) at the driver output",
+      "Shorten probe ground lead or use a ground spring",
+      "Match line impedance with proper termination",
+      "Use ground planes and minimize loop areas in the PCB layout"
+    ]
+  },
+  "jitter": {
+    "warning_pct_period": 0.5,
+    "critical_pct_period": 2.0,
+    "warning_ns": 5.0,
+    "critical_ns": 20.0,
+    "description": "Cycle-to-cycle timing variation — the period is not perfectly consistent",
+    "possible_causes": [
+      "Electromagnetic interference (EMI) coupling into the signal",
+      "Power supply noise modulating the switching threshold",
+      "PLL/clock source instability",
+      "Insufficient ground plane or poor PCB layout",
+      "Thermal noise at low signal amplitudes"
+    ],
+    "suggestions": [
+      "Improve shielding and reduce EMI sources near the signal path",
+      "Add bulk and high-frequency decoupling capacitors to the power rails",
+      "Check PLL loop filter if using a synthesized clock",
+      "Increase signal amplitude if it is close to noise floor",
+      "Improve PCB ground plane continuity"
+    ]
+  },
+  "noise": {
+    "medium_pct_amplitude": 2.0,
+    "high_pct_amplitude": 5.0,
+    "medium_mv": 20.0,
+    "high_mv": 50.0,
+    "description": "High-frequency random variation superimposed on the signal",
+    "possible_causes": [
+      "EMI pickup from nearby switching supplies, motors, or RF sources",
+      "Ground loop — multiple ground paths with different potentials",
+      "Insufficient high-frequency decoupling on power rails",
+      "Poor signal routing (long parallel runs next to switching signals)",
+      "Thermal noise (Johnson–Nyquist noise) in high-impedance circuits"
+    ],
+    "suggestions": [
+      "Add 100 nF ceramic bypass capacitors close to every IC power pin",
+      "Use a solid, uninterrupted ground plane",
+      "Route sensitive signals away from switching power or clock signals",
+      "Use differential signaling if noise margin is insufficient",
+      "Shield the signal path if EMI is from external sources"
+    ]
+  },
+  "ripple": {
+    "warning_pct_amplitude": 1.0,
+    "critical_pct_amplitude": 5.0,
+    "warning_mv": 50.0,
+    "critical_mv": 200.0,
+    "description": "Low-frequency periodic variation superimposed on an otherwise DC signal",
+    "possible_causes": [
+      "Insufficient output capacitance on the power supply",
+      "Switching frequency ripple from a DC-DC converter",
+      "Line frequency (50/60 Hz) hum from an unfiltered AC-DC supply",
+      "Shared return path causing load current modulation"
+    ],
+    "suggestions": [
+      "Increase output filter capacitance (bulk electrolytic + ceramic in parallel)",
+      "Add a post-regulation LC filter at the load",
+      "Use a linear regulator (LDO) after the switching supply for noise-sensitive circuits",
+      "Ensure good ground plane continuity to minimize shared impedance"
+    ]
+  },
+  "clipping": {
+    "flatness_threshold_pct": 2.0,
+    "description": "Signal peak is abnormally flat, indicating saturation or hard limiting",
+    "possible_causes": [
+      "Amplifier output saturated (input signal too large)",
+      "Output voltage limited by supply rail (signal exceeds Vcc or GND)",
+      "Deliberate limiting/clipping in a protection circuit",
+      "ADC input range exceeded (digital clipping in acquisition hardware)"
+    ],
+    "suggestions": [
+      "Reduce input signal amplitude to keep the output within linear range",
+      "Check if the supply voltage is sufficient for the required output swing",
+      "Increase supply voltage if the circuit design allows",
+      "Verify the amplifier's output voltage specification vs. observed clipping level"
+    ]
+  },
+  "slow_rise_time": {
+    "slow_threshold_pct_period": 10.0,
+    "description": "Rise time is a significant fraction of the signal period",
+    "possible_causes": [
+      "Excessive capacitive load on the driver output",
+      "Signal bandwidth intentionally or unintentionally limited by an RC filter",
+      "Driver output current limited (unable to charge load capacitance quickly)",
+      "Scope bandwidth set too low (an apparent rise time issue, not real)"
+    ],
+    "suggestions": [
+      "Reduce capacitive load or add a buffer between driver and load",
+      "Check scope bandwidth setting — should be at least 5× the signal frequency",
+      "Use a higher-current driver or buffer amplifier",
+      "If filtering is needed, use an intentional filter with a defined cutoff"
+    ]
+  },
+  "dc_offset": {
+    "warning_pct_amplitude": 10.0,
+    "description": "Significant DC offset relative to the signal amplitude",
+    "possible_causes": [
+      "Intentional DC bias (e.g., AC signal riding on a DC rail)",
+      "Leakage current through coupling capacitors",
+      "Scope probe input impedance interacting with the circuit"
+    ],
+    "suggestions": [
+      "Use AC coupling on the scope channel to view only the AC component",
+      "Check if the DC offset is expected for the circuit's operating point",
+      "Verify scope probe ground reference"
+    ]
+  }
+}
